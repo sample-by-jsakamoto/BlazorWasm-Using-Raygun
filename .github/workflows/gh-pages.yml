@@ -20,6 +20,12 @@ jobs:
       - name: Install .NET WebAssembly Tools
         run: dotnet workload install wasm-tools
 
+      # Set Raygun API key to the application settings
+      - name: Set Raygun API Key
+        env:
+          RAYGUN_API_KEY: ${{ vars.RAYGUN_API_KEY }}
+        run: sed -i "s|\${RAYGUN_API_KEY}|${RAYGUN_API_KEY}|g" RaygunTestApp.Client/wwwroot/appsettings.json
+
       # Publish the site
       - name: Publish
         run: dotnet publish RaygunTestApp.Client/RaygunTestApp.Client.csproj -o public -p GHPages=true
