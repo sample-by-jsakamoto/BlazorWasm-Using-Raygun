@@ -1,0 +1,29 @@
+@inject IServiceProvider Services
+
+<Router AppAssembly="@typeof(App).Assembly"
+        NotFoundPage="typeof(Pages.NotFound)"
+        OnNavigateAsync="OnNavigateAsync">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+</Router>
+
+@code
+{
+    private RaygunBlazorClient? RaygunClient => this.Services.GetService<RaygunBlazorClient>();
+
+    private void OnNavigateAsync(NavigationContext args)
+    {
+        // Record a breadcrumb for page navigation (included in crash reports)
+        this.RaygunClient?.RecordBreadcrumb($"Navigation: /{args.Path}", BreadcrumbType.Navigation);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && this.RaygunClient is not null)
+        {
+            await this.RaygunClient.InitializeAsync();
+        }
+    }
+}
